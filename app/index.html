@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=1920,user-scalable=no">
+  <title>Eli Home</title>
+  <link rel="stylesheet" href="css/home.css">
+</head>
+<body>
+  <div class="aurora a"></div><div class="aurora b"></div><div class="grain"></div>
+  <main>
+    <header>
+      <div><div class="eyebrow">WELCOME HOME</div><h1 id="greeting">Good evening, Eli.</h1></div>
+      <div class="clock"><b id="time">--:--</b><span id="date"></span></div>
+    </header>
+    <section class="hero">
+      <div class="hero-copy">
+        <span class="pill">YOUR TV · SIMPLIFIED</span>
+        <h2>What do you want<br>to watch?</h2>
+        <p>Only the things you use. Nothing fighting for your attention.</p>
+      </div>
+      <div class="orb"><i></i><i></i><i></i></div>
+    </section>
+    <section>
+      <div class="section-head"><h3>Apps</h3><span>Use arrows · OK to open</span></div>
+      <div id="apps" class="apps">
+        <button class="app prime" data-app="evKhCgZelL.AmazonIgnitionLauncher2"><span class="logo">prime video</span><small>Prime Video</small></button>
+        <button class="app plex" data-app="kIciSQlYEM.plex"><span class="logo">PLEX</span><small>Plex</small></button>
+        <button class="app netflix" data-app="org.tizen.netflix-app"><span class="logo">NETFLIX</span><small>Netflix</small></button>
+        <button class="app spotify" data-app="rJeHak5zRg.Spotify"><span class="logo"><b>●</b> Spotify</span><small>Spotify</small></button>
+        <button class="app sirius disabled" data-unavailable="SiriusXM is not installed on this TV"><span class="logo">SiriusXM</span><small>Not installed</small></button>
+      </div>
+    </section>
+    <footer><span id="status">Ready</span><span><b class="key red"></b> Details &nbsp; <b class="key green"></b> Refresh</span></footer>
+  </main>
+  <div id="toast" class="toast"></div>
+  <script src="js/home.js"></script>
+</body>
+</html>
