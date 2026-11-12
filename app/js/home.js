@@ -10,6 +10,7 @@
   var DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   var MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var KEY={LEFT:37,UP:38,RIGHT:39,DOWN:40,OK:13,BACK:10009,RED:403,GREEN:404};
+  var protectedHomeCodes={};
   function pad(n){return n<10?'0'+n:String(n)}
   function clock(){
     var d=new Date(),h=d.getHours();
@@ -42,8 +43,33 @@
     if(msg){say(msg);return}
     launch(b.getAttribute('data-app'));
   }
+  function protectHomeKey(){
+    var input,keys,i,key,name;
+    try{
+      input=window.tizen&&tizen.tvinputdevice;
+      if(!input){return}
+      keys=input.getSupportedKeys()||[];
+      for(i=0;i<keys.length;i+=1){
+        key=keys[i];
+        name=String(key.name||'');
+        if(/home|smart\s*hub/i.test(name)){
+          try{
+            input.registerKey(name);
+            protectedHomeCodes[key.code]=true;
+          }catch(ignore){}
+        }
+      }
+    }catch(ignore){}
+  }
   document.addEventListener('keydown',function(e){
-    if(e.keyCode===KEY.LEFT){focus(index-1);e.preventDefault()}
+    if(protectedHomeCodes[e.keyCode]){
+      say('Eli Home');
+      focus(index);
+      e.preventDefault();
+      e.stopPropagation();
+      if(e.stopImmediatePropagation){e.stopImmediatePropagation()}
+    }
+    else if(e.keyCode===KEY.LEFT){focus(index-1);e.preventDefault()}
     else if(e.keyCode===KEY.RIGHT){focus(index+1);e.preventDefault()}
     else if(e.keyCode===KEY.UP||e.keyCode===KEY.DOWN){focus(index);e.preventDefault()}
     else if(e.keyCode===KEY.OK){activate();e.preventDefault()}
@@ -51,6 +77,7 @@
     else if(e.keyCode===KEY.GREEN){location.reload();e.preventDefault()}
     else if(e.keyCode===KEY.BACK){say('Eli Home stays ready for you');e.preventDefault()}
   });
+  protectHomeKey();
   clock();
   setInterval(clock,60000);
   focus(0);
