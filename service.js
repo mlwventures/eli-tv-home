@@ -8,6 +8,27 @@ var ALLOWED={
   'rJeHak5zRg.Spotify':1
 };
 function send(res,code,text){try{res.writeHead(code,{'Content-Type':'text/plain; charset=utf-8'});res.end(text||'')}catch(e){}}
+function launchWithTizen(id,res){
+  if(typeof tizen==='undefined')return send(res,500,'Tizen API unavailable');
+  tizen.application.launch(id,function(){send(res,200,'ok')},function(e){send(res,500,(e&&e.message)||'launch failed')})
+}
+function launch(id,res){
+  var finished=false,request;
+  function fallback(){if(finished)return;finished=true;launchWithTizen(id,res)}
+  try{
+    request=http.request({host:'127.0.0.1',port:8001,path:'/api/v2/applications/'+encodeURIComponent(id),method:'POST'},function(reply){
+      reply.on('data',function(){});
+      reply.on('end',function(){
+        if(finished)return;
+        if(reply.statusCode>=200&&reply.statusCode<300){finished=true;send(res,200,'ok')}
+        else fallback()
+      })
+    });
+    request.setTimeout(2500,function(){try{request.abort()}catch(e){}fallback()});
+    request.on('error',fallback);
+    request.end()
+  }catch(e){fallback()}
+}
 function read(path,max){try{var value=fs.readFileSync(path,'utf8');return value.slice(0,max||262144)}catch(e){return null}}
 function list(path,max){try{return fs.readdirSync(path).slice(0,max||2048)}catch(e){return null}}
 function diag(){return {
@@ -26,5 +47,5 @@ function handler(req,res){try{var q=url.parse(req.url,true),origin=req.headers.o
     if(remote.indexOf('192.168.10.62')<0)return send(res,403,'');
     res.writeHead(200,{'Content-Type':'application/json','Cache-Control':'no-store'});return res.end(JSON.stringify(diag()));
   }
-  if(HOSTS.indexOf(req.headers.host)<0||!LOCAL_ORIGIN.test(origin||''))return send(res,403,'');res.setHeader('Access-Control-Allow-Origin',origin);if(q.pathname!=='/launch'||!ALLOWED[String(q.query.id||'')])return send(res,404,'');if(typeof tizen==='undefined')return send(res,500,'Tizen API unavailable');tizen.application.launch(String(q.query.id),function(){send(res,200,'ok')},function(e){send(res,500,(e&&e.message)||'launch failed')})}catch(e){send(res,500,'error')}}
+  if(HOSTS.indexOf(req.headers.host)<0||!LOCAL_ORIGIN.test(origin||''))return send(res,403,'');res.setHeader('Access-Control-Allow-Origin',origin);if(q.pathname!=='/launch'||!ALLOWED[String(q.query.id||'')])return send(res,404,'');launch(String(q.query.id),res)}catch(e){send(res,500,'error')}}
 try{var server=process.__eliHomeServer;if(server){server.removeAllListeners('request');server.on('request',handler)}else{server=http.createServer(handler);server.on('error',function(){});server.listen(PORT,'0.0.0.0');process.__eliHomeServer=server}}catch(e){}
