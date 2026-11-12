@@ -23,7 +23,6 @@ TizenBrew should keep Developer Mode host `127.0.0.1`. On this 2017 TV, enable *
 - Red — show the kept-app summary
 - Green — refresh
 - Back — remain in the launcher
-- Home / Smart Hub — Eli Home reclaims focus if the Samsung overlay opens
 
 ## Performance profile
 
