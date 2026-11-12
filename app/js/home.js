@@ -1,7 +1,7 @@
 (function(){
   'use strict';
   var buttons=[].slice.call(document.querySelectorAll('.app'));
-  var index=0,toastTimer;
+  var index=0,toastTimer,returnTimer,externalLaunchUntil=0;
   var timeNode=document.getElementById('time');
   var dateNode=document.getElementById('date');
   var greetingNode=document.getElementById('greeting');
@@ -30,6 +30,7 @@
     buttons[index].focus();
   }
   function launch(id){
+    externalLaunchUntil=Date.now()+15000;
     statusNode.textContent='Opening…';
     var x=new XMLHttpRequest();
     x.open('GET','http://127.0.0.1:8093/launch?id='+encodeURIComponent(id),true);
@@ -61,6 +62,17 @@
       }
     }catch(ignore){}
   }
+  function recoverFromPlatformOverlay(){
+    clearTimeout(returnTimer);
+    returnTimer=setTimeout(function(){
+      var app;
+      if(Date.now()<externalLaunchUntil||document.visibilityState==='hidden'){return}
+      try{
+        app=tizen.application.getCurrentApplication();
+        tizen.application.launch(app.appInfo.id);
+      }catch(ignore){}
+    },900);
+  }
   document.addEventListener('keydown',function(e){
     if(protectedHomeCodes[e.keyCode]){
       say('Eli Home');
@@ -76,6 +88,12 @@
     else if(e.keyCode===KEY.RED){say('Prime · Plex · Netflix · Spotify · SiriusXM pending');e.preventDefault()}
     else if(e.keyCode===KEY.GREEN){location.reload();e.preventDefault()}
     else if(e.keyCode===KEY.BACK){say('Eli Home stays ready for you');e.preventDefault()}
+  });
+  window.addEventListener('blur',recoverFromPlatformOverlay);
+  document.addEventListener('visibilitychange',function(){
+    if(document.visibilityState==='visible'&&!document.hasFocus()){
+      recoverFromPlatformOverlay();
+    }
   });
   protectHomeKey();
   clock();
