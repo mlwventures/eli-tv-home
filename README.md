@@ -23,3 +23,11 @@ TizenBrew should keep Developer Mode host `127.0.0.1`. On this 2017 TV, enable *
 - Red — show the kept-app summary
 - Green — refresh
 - Back — remain in the launcher
+
+## Performance profile
+
+The launcher is intentionally self-contained for the 2017 Tizen 3 browser: no
+remote assets, web fonts, frameworks, blur filters, animated focus transitions,
+or repeated textures. Focus is visible immediately, the clock updates once per
+minute, and the app-launch service accepts only local origins and the four
+allowlisted installed app IDs.
